@@ -1,0 +1,643 @@
+  /**
+   * Generate meeting improvement suggestions based on feedback
+   * @param {Object} aggregatedFeedback - Aggregated feedback
+   * @returns {Array} - Improvement suggestions
+   */
+  generateImprovementSuggestions(aggregatedFeedback) {
+    if (!aggregatedFeedback || aggregatedFeedback.totalResponses === 0) {
+      return [];
+    }
+    
+    const suggestions = [];
+    
+    // Decision-making suggestions
+    if (aggregatedFeedback.decisionsRate < 0.5) {
+      suggestions.push({
+        area: 'Decision Making',
+        suggestion: 'Include specific decision points in the meeting agenda and ensure they are addressed',
+        priority: aggregatedFeedback.decisionsRate < 0.2 ? 'high' : 'medium'
+      });
+    }
+    
+    // Action items suggestions
+    if (aggregatedFeedback.actionItemsRate < 0.6) {
+      suggestions.push({
+        area: 'Action Items',
+        suggestion: 'End each meeting with clear action items assigned to specific individuals',
+        priority: aggregatedFeedback.actionItemsRate < 0.3 ? 'high' : 'medium'
+      });
+    }
+    
+    // Participation suggestions
+    if (aggregatedFeedback.averageParticipation < 50) {
+      suggestions.push({
+        area: 'Participation',
+        suggestion: 'Consider reducing the number of participants or use round-robin techniques to ensure everyone contributes',
+        priority: aggregatedFeedback.averageParticipation < 30 ? 'high' : 'medium'
+      });
+    }
+    
+    // Async conversion suggestions
+    if (aggregatedFeedback.couldBeAsyncRate > 0.6) {
+      suggestions.push({
+        area: 'Meeting Format',
+        suggestion: 'Convert this recurring meeting to an asynchronous format using tools like shared documents or structured chat threads',
+        priority: aggregatedFeedback.couldBeAsyncRate > 0.8 ? 'high' : 'medium'
+      });
+    }
+    
+    // Meeting length suggestions
+    if (aggregatedFeedback.lengthRatings['Too long'] > aggregatedFeedback.totalResponses * 0.5) {
+      suggestions.push({
+        area: 'Meeting Length',
+        suggestion: 'Reduce the meeting duration and create a more focused agenda',
+        priority: 'high'
+      });
+    } else if (aggregatedFeedback.lengthRatings['Too short'] > aggregatedFeedback.totalResponses * 0.5) {
+      suggestions.push({
+        area: 'Meeting Length',
+        suggestion: 'Consider allocating more time to allow for more thorough discussion',
+        priority: 'medium'
+      });
+    }
+    
+    return suggestions;
+  }
+
+  /**
+   * Send feedback notification through selected channels
+   * @param {Object} meeting - Meeting to collect feedback for
+   * @param {string} feedbackId - Feedback ID
+   * @returns {Promise<boolean>} - Success status
+   */
+  async sendFeedbackNotification(meeting, feedbackId) {
+    try {
+      const channels = [];
+      
+      // Prepare notifications for each enabled channel
+      if (this.notificationChannels.email) {
+        channels.push(this.sendEmailNotification(meeting, feedbackId));
+      }
+      
+      if (this.notificationChannels.slack) {
+        channels.push(this.sendSlackNotification(meeting, feedbackId));
+      }
+      
+      if (this.notificationChannels.teams) {
+        channels.push(this.sendTeamsNotification(meeting, feedbackId));
+      }
+      
+      if (this.notificationChannels.calendar) {
+        channels.push(this.sendCalendarNotification(meeting, feedbackId));
+      }
+      
+      // Wait for all notifications to be sent
+      await Promise.all(channels);
+      
+      return true;
+    } catch (error) {
+      console.error(`Error sending feedback notification: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Send feedback notification via email
+   * @private
+   * @param {Object} meeting - Meeting to collect feedback for
+   * @param {string} feedbackId - Feedback ID
+   */
+  async sendEmailNotification(meeting, feedbackId) {
+    // This would integrate with an email service
+    console.log(`Sending email notification for meeting: ${meeting.title}`);
+    
+    // Simulate email sending
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return true;
+  }
+
+  /**
+   * Send feedback notification via Slack
+   * @private
+   * @param {Object} meeting - Meeting to collect feedback for
+   * @param {string} feedbackId - Feedback ID
+   */
+  async sendSlackNotification(meeting, feedbackId) {
+    // This would integrate with Slack API
+    console.log(`Sending Slack notification for meeting: ${meeting.title}`);
+    
+    // Simulate Slack notification
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    return true;
+  }
+
+  /**
+   * Send feedback notification via Microsoft Teams
+   * @private
+   * @param {Object} meeting - Meeting to collect feedback for
+   * @param {string} feedbackId - Feedback ID
+   */
+  async sendTeamsNotification(meeting, feedbackId) {
+    // This would integrate with Microsoft Teams API
+    console.log(`Sending Teams notification for meeting: ${meeting.title}`);
+    
+    // Simulate Teams notification
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    return true;
+  }
+
+  /**
+   * Send feedback notification via calendar
+   * @private
+   * @param {Object} meeting - Meeting to collect feedback for
+   * @param {string} feedbackId - Feedback ID
+   */
+  async sendCalendarNotification(meeting, feedbackId) {
+    // This would integrate with calendar API
+    console.log(`Sending calendar notification for meeting: ${meeting.title}`);
+    
+    // Simulate calendar notification
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    return true;
+  }
+
+  /**
+   * Export feedback data for analysis
+   * @param {string} format - Export format ('json', 'csv')
+   * @returns {string} - Exported data
+   */
+  exportFeedbackData(format = 'json') {
+    try {
+      if (format === 'json') {
+        return JSON.stringify(this.feedbackDatabase, null, 2);
+      } else if (format === 'csv') {
+        // Simple CSV export for feedback data
+        const headers = ['id', 'meetingTitle', 'status', 'responseCount'];
+        const rows = this.feedbackDatabase.map(fb => [
+          fb.id,
+          fb.meetingTitle,
+          fb.status,
+          fb.responses.length
+        ]);
+        
+        const csv = [
+          headers.join(','),
+          ...rows.map(row => row.join(','))
+        ].join('\n');
+        
+        return csv;
+      } else {
+        throw new Error(`Unsupported export format: ${format}`);
+      }
+    } catch (error) {
+      console.error(`Error exporting feedback data: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get historical meeting effectiveness trends
+   * @param {number} months - Number of months of data to analyze
+   * @returns {Object} - Effectiveness trends
+   */
+  getEffectivenessTrends(months = 3) {
+    try {
+      // In a real implementation, this would analyze historical feedback
+      // Here we return mock data
+      
+      return {
+        overallTrend: 'improving',
+        metrics: {
+          decisionsRate: [0.22, 0.28, 0.35],
+          actionItemsRate: [0.31, 0.42, 0.54],
+          participation: [38, 45, 52],
+          asyncRate: [0.68, 0.62, 0.58]
+        },
+        improvementAreas: [
+          {
+            area: 'Decision Making',
+            changePercent: 59,
+            trend: 'improving'
+          },
+          {
+            area: 'Action Items',
+            changePercent: 74,
+            trend: 'improving'
+          },
+          {
+            area: 'Participation',
+            changePercent: 37,
+            trend: 'improving'
+          },
+          {
+            area: 'Async Conversion',
+            changePercent: -15,
+            trend: 'improving' // Fewer meetings that could be async
+          }
+        ]
+      };
+    } catch (error) {
+      console.error(`Error getting effectiveness trends: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Process all pending feedback
+   * @returns {Promise<Object>} - Processing results
+   */
+  async processPendingFeedback() {
+    try {
+      const pending = this.feedbackDatabase.filter(fb => fb.status === 'completed' && !fb.processed);
+      
+      let processed = 0;
+      let failed = 0;
+      
+      for (const feedback of pending) {
+        try {
+          // Mark as processed
+          feedback.processed = true;
+          feedback.processedAt = new Date();
+          
+          processed++;
+        } catch (error) {
+          console.error(`Error processing feedback ${feedback.id}: ${error.message}`);
+          failed++;
+        }
+      }
+      
+      return {
+        processed,
+        failed,
+        remaining: this.feedbackDatabase.filter(fb => fb.status === 'completed' && !fb.processed).length
+      };
+    } catch (error) {
+      console.error(`Error processing pending feedback: ${error.message}`);
+      return {
+        processed: 0,
+        failed: 0,
+        error: error.message
+    // FeedbackCollection.js - Post-meeting feedback collection system
+
+/**
+ * Feedback collection system for the Meeting Usefulness AI
+ * This module provides functionality to collect and process feedback
+ * after meetings to improve AI recommendations.
+ */
+
+class FeedbackCollection {
+  constructor() {
+    this.feedbackDatabase = [];
+    this.surveyTemplates = {};
+    this.notificationChannels = {
+      email: true,
+      slack: false,
+      teams: false,
+      calendar: true
+    };
+  }
+
+  /**
+   * Initialize feedback collection system
+   * @param {Object} options - Configuration options
+   * @returns {boolean} - Initialization success
+   */
+  initialize(options = {}) {
+    try {
+      // Set up notification channels
+      if (options.notificationChannels) {
+        this.notificationChannels = {
+          ...this.notificationChannels,
+          ...options.notificationChannels
+        };
+      }
+      
+      // Set up default survey templates
+      this.createDefaultTemplates();
+      
+      return true;
+    } catch (error) {
+      console.error(`Feedback initialization error: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Create default survey templates
+   * @private
+   */
+  createDefaultTemplates() {
+    // Standard feedback template
+    this.surveyTemplates.standard = {
+      name: 'Standard Meeting Feedback',
+      questions: [
+        {
+          id: 'decision_made',
+          text: 'Were any decisions made in this meeting?',
+          type: 'boolean'
+        },
+        {
+          id: 'action_items',
+          text: 'Were specific action items assigned to individuals?',
+          type: 'boolean'
+        },
+        {
+          id: 'participation',
+          text: 'What percentage of attendees actively participated?',
+          type: 'percentage'
+        },
+        {
+          id: 'could_be_async',
+          text: 'Could this meeting have been handled asynchronously?',
+          type: 'boolean'
+        },
+        {
+          id: 'meeting_length',
+          text: 'Was the meeting length appropriate?',
+          type: 'options',
+          options: ['Too short', 'Just right', 'Too long']
+        }
+      ]
+    };
+    
+    // Brief feedback template
+    this.surveyTemplates.brief = {
+      name: 'Quick Meeting Feedback',
+      questions: [
+        {
+          id: 'useful',
+          text: 'Was this meeting useful?',
+          type: 'boolean'
+        },
+        {
+          id: 'could_be_shorter',
+          text: 'Could this meeting have been shorter?',
+          type: 'boolean'
+        },
+        {
+          id: 'could_be_async',
+          text: 'Could this meeting have been handled asynchronously?',
+          type: 'boolean'
+        }
+      ]
+    };
+    
+    // Detailed feedback template
+    this.surveyTemplates.detailed = {
+      name: 'Detailed Meeting Feedback',
+      questions: [
+        {
+          id: 'decision_made',
+          text: 'Were any decisions made in this meeting?',
+          type: 'boolean'
+        },
+        {
+          id: 'action_items',
+          text: 'Were specific action items assigned to individuals?',
+          type: 'boolean'
+        },
+        {
+          id: 'participation',
+          text: 'What percentage of attendees actively participated?',
+          type: 'percentage'
+        },
+        {
+          id: 'could_be_async',
+          text: 'Could this meeting have been handled asynchronously?',
+          type: 'boolean'
+        },
+        {
+          id: 'meeting_length',
+          text: 'Was the meeting length appropriate?',
+          type: 'options',
+          options: ['Too short', 'Just right', 'Too long']
+        },
+        {
+          id: 'agenda_followed',
+          text: 'Was the agenda followed effectively?',
+          type: 'options',
+          options: ['Not at all', 'Somewhat', 'Mostly', 'Completely', 'No agenda provided']
+        },
+        {
+          id: 'preparation',
+          text: 'Were participants adequately prepared?',
+          type: 'options',
+          options: ['Not prepared', 'Somewhat prepared', 'Well prepared']
+        },
+        {
+          id: 'feedback',
+          text: 'Any additional comments about this meeting?',
+          type: 'text'
+        }
+      ]
+    };
+  }
+
+  /**
+   * Create a custom survey template
+   * @param {string} name - Template name
+   * @param {Array} questions - Survey questions
+   * @returns {boolean} - Creation success
+   */
+  createCustomTemplate(name, questions) {
+    try {
+      if (!name || !questions || !Array.isArray(questions) || questions.length === 0) {
+        throw new Error('Invalid template parameters');
+      }
+      
+      this.surveyTemplates[name.toLowerCase()] = {
+        name,
+        questions
+      };
+      
+      return true;
+    } catch (error) {
+      console.error(`Error creating template: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Schedule feedback collection for a meeting
+   * @param {Object} meeting - Meeting to collect feedback for
+   * @param {string} templateName - Template to use (default: 'standard')
+   * @returns {Object} - Scheduled feedback info
+   */
+  scheduleFeedback(meeting, templateName = 'standard') {
+    try {
+      const template = this.surveyTemplates[templateName.toLowerCase()];
+      if (!template) {
+        throw new Error(`Template "${templateName}" not found`);
+      }
+      
+      // In a real implementation, this would schedule notifications
+      // after the meeting ends
+      
+      const feedbackId = 'fb-' + Math.random().toString(36).substr(2, 9);
+      
+      const scheduledFeedback = {
+        id: feedbackId,
+        meetingId: meeting.id || null,
+        meetingTitle: meeting.title,
+        scheduledTime: new Date(meeting.endTime || Date.now() + 3600000), // Default 1 hour ahead
+        template: templateName,
+        status: 'scheduled',
+        responses: []
+      };
+      
+      // Store in the database
+      this.feedbackDatabase.push(scheduledFeedback);
+      
+      return scheduledFeedback;
+    } catch (error) {
+      console.error(`Error scheduling feedback: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get feedback survey for a meeting
+   * @param {string} feedbackId - Feedback ID
+   * @returns {Object} - Feedback survey
+   */
+  getFeedbackSurvey(feedbackId) {
+    try {
+      const feedback = this.feedbackDatabase.find(fb => fb.id === feedbackId);
+      if (!feedback) {
+        throw new Error(`Feedback with ID "${feedbackId}" not found`);
+      }
+      
+      const template = this.surveyTemplates[feedback.template];
+      if (!template) {
+        throw new Error(`Template "${feedback.template}" not found`);
+      }
+      
+      return {
+        id: feedback.id,
+        meetingTitle: feedback.meetingTitle,
+        questions: template.questions
+      };
+    } catch (error) {
+      console.error(`Error getting feedback survey: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Submit feedback for a meeting
+   * @param {string} feedbackId - Feedback ID
+   * @param {Object} responses - Survey responses
+   * @returns {boolean} - Submission success
+   */
+  submitFeedback(feedbackId, responses) {
+    try {
+      const feedbackIndex = this.feedbackDatabase.findIndex(fb => fb.id === feedbackId);
+      if (feedbackIndex === -1) {
+        throw new Error(`Feedback with ID "${feedbackId}" not found`);
+      }
+      
+      // Update the feedback with responses
+      this.feedbackDatabase[feedbackIndex].responses.push({
+        timestamp: new Date(),
+        data: responses
+      });
+      
+      this.feedbackDatabase[feedbackIndex].status = 'completed';
+      
+      return true;
+    } catch (error) {
+      console.error(`Error submitting feedback: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Get aggregated feedback for a recurring meeting
+   * @param {string} recurringMeetingId - Recurring meeting ID
+   * @returns {Object} - Aggregated feedback
+   */
+  getAggregatedFeedback(recurringMeetingId) {
+    try {
+      // Find all feedback for meetings with this recurring ID
+      const feedbackItems = this.feedbackDatabase.filter(fb => 
+        fb.meetingId && fb.meetingId.recurringMeetingId === recurringMeetingId && 
+        fb.status === 'completed' && fb.responses.length > 0);
+      
+      if (feedbackItems.length === 0) {
+        return null;
+      }
+      
+      // Aggregate the feedback
+      const aggregated = {
+        recurringMeetingId,
+        meetingTitle: feedbackItems[0].meetingTitle,
+        totalResponses: 0,
+        decisionsRate: 0,
+        actionItemsRate: 0,
+        averageParticipation: 0,
+        couldBeAsyncRate: 0,
+        lengthRatings: {
+          'Too short': 0,
+          'Just right': 0,
+          'Too long': 0
+        }
+      };
+      
+      let decisionCount = 0;
+      let actionItemsCount = 0;
+      let participationSum = 0;
+      let asyncCount = 0;
+      
+      // Process all responses
+      feedbackItems.forEach(feedback => {
+        feedback.responses.forEach(response => {
+          aggregated.totalResponses++;
+          
+          if (response.data.decision_made) decisionCount++;
+          if (response.data.action_items) actionItemsCount++;
+          if (response.data.participation) participationSum += response.data.participation;
+          if (response.data.could_be_async) asyncCount++;
+          
+          if (response.data.meeting_length) {
+            aggregated.lengthRatings[response.data.meeting_length]++;
+          }
+        });
+      });
+      
+      // Calculate rates
+      if (aggregated.totalResponses > 0) {
+        aggregated.decisionsRate = decisionCount / aggregated.totalResponses;
+        aggregated.actionItemsRate = actionItemsCount / aggregated.totalResponses;
+        aggregated.averageParticipation = participationSum / aggregated.totalResponses;
+        aggregated.couldBeAsyncRate = asyncCount / aggregated.totalResponses;
+      }
+      
+      return aggregated;
+    } catch (error) {
+      console.error(`Error getting aggregated feedback: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Generate meeting improvement suggestions based on feedback
+   * @param {Object} aggregatedFeedback - Aggregated feedback
+   * @returns {Array} - Improvement suggestions
+   */
+  generateImprovementSuggestions(aggregatedFeedback) {
+    if (!aggregatedFeedback || aggregatedFeedback.totalResponses === 0) {
+      return [];
+    }
+    
+    const suggestions = [];
+    
+    // Decision-making suggestions
+    if (aggregatedFeedback.decisionsRate < 0.5) {
+      suggestions.push({
+        area: 'Decision Making',
+        suggestion: 'Include specific decision points in the meeting agenda and ensure they are addressed',
+        priority: aggregatedFeedback.decisionsRate

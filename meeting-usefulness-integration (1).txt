@@ -1,0 +1,350 @@
+// CalendarIntegration.js - Integration with calendar services
+
+/**
+ * Calendar integration for the Meeting Usefulness AI
+ * This module provides integration with Google Calendar, Microsoft Outlook,
+ * and other calendar systems to fetch meetings and suggest auto-declines.
+ */
+
+class CalendarIntegration {
+  constructor(calendarType = 'google') {
+    this.calendarType = calendarType;
+    this.isAuthenticated = false;
+    this.authToken = null;
+  }
+
+  /**
+   * Authenticate with the calendar service
+   * @param {Object} credentials - Authentication credentials
+   * @returns {Promise<boolean>} - Authentication success
+   */
+  async authenticate(credentials) {
+    try {
+      // Implementation would depend on the calendar service
+      // This is a mock implementation
+      console.log(`Authenticating with ${this.calendarType} calendar`);
+      
+      // Simulate API authentication
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      this.isAuthenticated = true;
+      this.authToken = 'mock-auth-token-' + Math.random().toString(36).substr(2, 9);
+      
+      return true;
+    } catch (error) {
+      console.error(`Authentication error: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Fetch upcoming meetings from the calendar
+   * @param {number} daysAhead - Number of days ahead to fetch
+   * @returns {Promise<Array>} - Array of meeting objects
+   */
+  async fetchUpcomingMeetings(daysAhead = 7) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Fetching meetings for the next ${daysAhead} days`);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock data - in a real implementation, this would fetch from the calendar API
+      return [
+        {
+          id: 'meeting-1',
+          title: 'Weekly Team Sync',
+          startTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          endTime: new Date(Date.now() + 24 * 60 * 60 * 1000 + 60 * 60 * 1000),
+          duration: 60,
+          participants: 8,
+          organizer: 'jane.doe@example.com',
+          location: 'Conference Room A',
+          hasAgenda: true,
+          recurringMeetingId: 'rec-123'
+        },
+        {
+          id: 'meeting-2',
+          title: 'Product Planning',
+          startTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+          endTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000),
+          duration: 90,
+          participants: 12,
+          organizer: 'john.smith@example.com',
+          location: 'Virtual',
+          hasAgenda: false,
+          recurringMeetingId: null
+        },
+        {
+          id: 'meeting-3',
+          title: 'Sprint Review',
+          startTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+          endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 45 * 60 * 1000),
+          duration: 45,
+          participants: 15,
+          organizer: 'project.manager@example.com',
+          location: 'Virtual',
+          hasAgenda: true,
+          recurringMeetingId: 'rec-456'
+        }
+      ];
+    } catch (error) {
+      console.error(`Error fetching meetings: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Transform calendar meetings to the format needed by the Meeting AI
+   * @param {Array} calendarMeetings - Raw meetings from the calendar
+   * @returns {Array} - Transformed meeting objects
+   */
+  transformMeetingsForAI(calendarMeetings) {
+    return calendarMeetings.map(meeting => ({
+      title: meeting.title,
+      duration: meeting.duration,
+      participants: meeting.participants,
+      expected_speakers: Math.ceil(meeting.participants * 0.4), // Estimate
+      has_agenda: meeting.hasAgenda,
+      originalMeetingData: meeting // Keep reference to the original
+    }));
+  }
+
+  /**
+   * Suggest declining a meeting based on AI recommendation
+   * @param {Object} meeting - The meeting to decline
+   * @param {string} reason - Reason for declining
+   * @param {Array} alternatives - Alternative async suggestions
+   * @returns {Promise<boolean>} - Success status
+   */
+  async suggestDecline(meeting, reason, alternatives) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Suggesting decline for meeting: ${meeting.title}`);
+      
+      // This would normally send a calendar notification or email
+      // Here we just simulate the API call
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // In a real implementation, this might:
+      // 1. Send a notification to the user
+      // 2. Offer options: Decline, Suggest async alternative, Keep meeting
+      // 3. If declined, send a response to the organizer
+      
+      return true;
+    } catch (error) {
+      console.error(`Error suggesting decline: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Auto-decline a meeting based on AI recommendation
+   * @param {Object} meeting - The meeting to decline
+   * @param {string} reason - Reason for declining
+   * @param {string} message - Custom message to send to organizer
+   * @returns {Promise<boolean>} - Success status
+   */
+  async autoDeclineMeeting(meeting, reason, message) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Auto-declining meeting: ${meeting.title}`);
+      
+      // This would normally send a decline response through the calendar API
+      // Here we just simulate the API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real implementation, this would:
+      // 1. Decline the calendar invitation
+      // 2. Optionally send a message with the reason
+      // 3. Suggest async alternatives if applicable
+      
+      return true;
+    } catch (error) {
+      console.error(`Error auto-declining meeting: ${error.message}`);
+      return false;
+    }
+  }
+  
+  /**
+   * Suggest an asynchronous alternative to a meeting
+   * @param {Object} meeting - The meeting to suggest alternative for
+   * @param {Array} alternatives - List of async alternatives
+   * @returns {Promise<boolean>} - Success status
+   */
+  async suggestAsyncAlternative(meeting, alternatives) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Suggesting async alternative for meeting: ${meeting.title}`);
+      
+      // Simulate creating and sending alternative suggestion
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // In a real implementation, this would:
+      // 1. Create a notification or email draft
+      // 2. Include the alternative suggestions
+      // 3. Allow the user to review and send
+      
+      return true;
+    } catch (error) {
+      console.error(`Error suggesting async alternative: ${error.message}`);
+      return false;
+    }
+  }
+  
+  /**
+   * Schedule post-meeting feedback collection
+   * @param {Object} meeting - The meeting to collect feedback for
+   * @returns {Promise<boolean>} - Success status
+   */
+  async scheduleFeedbackCollection(meeting) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Scheduling feedback collection for meeting: ${meeting.title}`);
+      
+      // Simulate scheduling a feedback request
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // In a real implementation, this would:
+      // 1. Set up a trigger to send feedback request after meeting ends
+      // 2. Create the feedback form/survey
+      
+      return true;
+    } catch (error) {
+      console.error(`Error scheduling feedback: ${error.message}`);
+      return false;
+    }
+  }
+  
+  /**
+   * Apply meeting template to recurring meetings
+   * @param {string} recurringMeetingId - ID of the recurring meeting series
+   * @param {Object} template - Meeting template with optimized settings
+   * @returns {Promise<boolean>} - Success status
+   */
+  async applyMeetingTemplate(recurringMeetingId, template) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Applying template to recurring meeting: ${recurringMeetingId}`);
+      
+      // Simulate applying template
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // In a real implementation, this would:
+      // 1. Update all future instances of the recurring meeting
+      // 2. Apply the template settings (duration, participants, agenda, etc.)
+      
+      return true;
+    } catch (error) {
+      console.error(`Error applying meeting template: ${error.message}`);
+      return false;
+    }
+  }
+  
+  /**
+   * Get calendar stats for time spent in meetings
+   * @param {number} daysBack - Number of days to analyze
+   * @returns {Promise<Object>} - Calendar statistics
+   */
+  async getCalendarStats(daysBack = 30) {
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated with calendar service');
+    }
+    
+    try {
+      console.log(`Getting calendar stats for the past ${daysBack} days`);
+      
+      // Simulate fetching and analyzing calendar data
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock statistics - in a real implementation, this would calculate from actual calendar data
+      return {
+        totalMeetings: 87,
+        totalHours: 124.5,
+        averageMeetingsPerDay: 4.1,
+        averageMeetingLength: 86, // minutes
+        mostFrequentMeetingTypes: [
+          { title: 'Team Sync', count: 18 },
+          { title: 'Sprint Planning', count: 12 },
+          { title: 'One-on-One', count: 10 }
+        ],
+        busyDays: [
+          { day: 'Monday', hours: 5.2 },
+          { day: 'Tuesday', hours: 6.8 },
+          { day: 'Wednesday', hours: 5.5 },
+          { day: 'Thursday', hours: 4.9 },
+          { day: 'Friday', hours: 3.1 }
+        ],
+        timeBlocks: [
+          { block: 'Morning (8-12)', hours: 7.8 },
+          { block: 'Afternoon (12-4)', hours: 10.2 },
+          { block: 'Evening (4-8)', hours: 2.1 }
+        ]
+      };
+    } catch (error) {
+      console.error(`Error getting calendar stats: ${error.message}`);
+      return null;
+    }
+  }
+}
+
+// Google Calendar specific implementation
+class GoogleCalendarIntegration extends CalendarIntegration {
+  constructor() {
+    super('google');
+    this.apiBase = 'https://www.googleapis.com/calendar/v3';
+  }
+  
+  // Override with Google Calendar specific implementations
+  async authenticate(credentials) {
+    // In a real implementation, this would use Google OAuth
+    return super.authenticate(credentials);
+  }
+}
+
+// Microsoft Outlook specific implementation
+class OutlookCalendarIntegration extends CalendarIntegration {
+  constructor() {
+    super('outlook');
+    this.apiBase = 'https://graph.microsoft.com/v1.0/me/calendar';
+  }
+  
+  // Override with Outlook specific implementations
+  async authenticate(credentials) {
+    // In a real implementation, this would use Microsoft Graph API
+    return super.authenticate(credentials);
+  }
+}
+
+// Factory function to create the appropriate calendar integration
+function createCalendarIntegration(type = 'google') {
+  switch (type.toLowerCase()) {
+    case 'google':
+      return new GoogleCalendarIntegration();
+    case 'outlook':
+      return new OutlookCalendarIntegration();
+    default:
+      return new CalendarIntegration(type);
+  }
+}
+
+export { CalendarIntegration, createCalendarIntegration };
